@@ -1,56 +1,159 @@
-<!DOCTYPE html>
-<html lang="en">
+import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useLikedItems } from "../context/LikedItemsContext";
+import { X, ShoppingCart, Heart } from "lucide-react";
 
-<head>
-  <!-- 
-      This is an HTML comment
-      You can write text in a comment and the content won't be visible in the page
-    -->
+const QuickView = ({ poster, isOpen, onClose }) => {
+  const { isLiked, toggleLikedItem } = useLikedItems();
 
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="https://glitch.com/favicon.ico" />
+  if (!poster) return null;
 
-  <!--
-      This is the page head - it contains info the browser uses
-      Like the title, which appears on the browser tab but not inside the page
-      Further down you'll see the content that displays in the page
-    -->
-  <title>Hello World!</title>
+  const posterIsLiked = isLiked(poster.id);
+  const discountedPrice = (poster.price * 0.9).toFixed(2);
 
-  <!-- The website stylesheet -->
-  <link rel="stylesheet" href="/style.css" />
+  const handleLikeClick = () => {
+    toggleLikedItem(poster);
+  };
 
-  <!-- The website JavaScript file -->
-  <script src="/script.js" defer></script>
-</head>
+  return (
+    <AnimatePresence initial={false}>
+      {isOpen && (
+        <motion.div
+          key="quickview"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          {/* Inner Card */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-red-600/20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-800">
+              <h2 className="text-2xl font-bold text-white">{poster.title}</h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
-<body>
-  <!--
-      The body includes the content you see in the page
-      Each element is defined using tags, like this <div></div>
-      The attributes like class="wrapper" let us style elements in the CSS
-    -->
-  <div class="wrapper">
-    <div class="content" role="main">
-      <h1 class="title">Oh hi website!</h1>
-      <img src="/cool-website.svg" class="illustration" alt="cool website" />
-      <div class="instructions">
-        <p>
-          Fork <a href="https://github.com/glitchdotcom/website-to-compute">this project</a> and open it in a GitHub Codespace.
-        </p>
-        <p> Follow the steps in the README to deploy your new website to Fastly in a few steps!
-        </p>
+            {/* Content */}
+            <div className="grid md:grid-cols-2 gap-6 p-6">
+              {/* Image */}
+              <div className="relative">
+                <img
+                  src={poster.image}
+                  alt={poster.title}
+                  className="w-full h-96 object-cover rounded-lg"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full">
+                    {poster.category}
+                  </span>
+                </div>
+                <div className="absolute top-4 right-4">
+                  <span className="px-3 py-1 bg-green-600 text-white text-sm font-bold rounded-full">
+                    10% OFF
+                  </span>
+                </div>
+              </div>
 
-      </div>
+              {/* Right Content */}
+              <div className="space-y-6">
+                {/* Price with Discount */}
+                <div>
+                  <span className="text-gray-500 text-lg line-through block">
+                    ₹{poster.price}
+                  </span>
+                  <span className="text-3xl font-bold text-red-400 block">
+                    ₹{discountedPrice}
+                  </span>
+                  <span className="text-green-400 text-sm font-medium">
+                    You save ₹{(poster.price * 0.1).toFixed(2)}
+                  </span>
+                </div>
 
-      <footer class="footer">
-        <div>
-          <a class="remix" href="https://github.com/glitchdotcom/website-to-compute">🚧 Get your own site</a>
-        </div>
-      </footer>
-    </div>
-  </div>
-</body>
+                {/* Description */}
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Description
+                  </h3>
+                  <p className="text-gray-300 leading-relaxed">
+                    {poster.description}
+                  </p>
+                </div>
 
-</html>
+                {/* Specifications */}
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">
+                    Specifications
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Size:</span>
+                      <span className="text-white">24" x 36"</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Material:</span>
+                      <span className="text-white">Premium Paper</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Finish:</span>
+                      <span className="text-white">Matte</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Frame:</span>
+                      <span className="text-white">Not Included</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex space-x-4 pt-4">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>Add to Cart</span>
+                  </motion.button>
+
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleLikeClick}
+                    className={`p-3 border rounded-lg transition-colors ${
+                      posterIsLiked
+                        ? "border-red-600 bg-red-600/10 text-red-400"
+                        : "border-gray-600 hover:border-red-600 text-gray-300 hover:text-red-400"
+                    }`}
+                  >
+                    <Heart
+                      className="w-5 h-5"
+                      fill={posterIsLiked ? "currentColor" : "none"}
+                    />
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default QuickView;
